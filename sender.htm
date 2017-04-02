@@ -1,0 +1,43 @@
+<html>
+	<head>
+		<title>WebTorrent Google Cast</title>
+		<script type='text/javascript' src='https://www.gstatic.com/cv/js/sender/v1/cast_sender.js'></script>
+		<script type='text/javascript'>
+			function onError() {
+				document.getElementById('message').innerHTML = 'Error';
+			}
+
+			window['__onGCastApiAvailable'] = function(loaded, errorInfo) {
+				if (loaded) {
+					var applicationID = '';
+					var sessionRequest = new chrome.cast.SessionRequest(applicationID);
+					var apiConfig = new chrome.cast.ApiConfig(sessionRequest, function() {}, function() {});
+
+					chrome.cast.initialize(apiConfig,
+						function(message) {
+							document.getElementById('castButton').disabled = false;
+						}, onError);
+				}
+			}
+
+			function cast() {
+				var url = document.getElementById('url').value;
+				if (!url) return;
+				chrome.cast.requestSession(function(session) {
+					var mediaInfo = new chrome.cast.media.MediaInfo(url);
+					var request = new chrome.cast.media.LoadRequest(mediaInfo);
+					request.autoplay = true;
+					session.loadMedia(request, function() {}, onError);
+				}, onError);
+			}
+		</script>
+	</head>
+	<body>
+		<div>
+			<p>Enter torrent ID (magnet URI or HTTP(S) URL to a *.torrent file):</p>
+			<input type='text' size='70' id='url' value='https://fastcast.nz/torrents/amplitude-new-zealand-4k.torrent'></input>
+			<input type='button' onclick='cast()' value='Cast' id='castButton' disabled></input>
+			<div id='message'></div>
+		</div>
+	</body>
+</html>

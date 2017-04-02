@@ -1,0 +1,35 @@
+<html>
+	<head>
+		<title>WebTorrent Google Cast</title>
+		<script type='text/javascript' src='https://www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js'></script>
+		<script type='text/javascript' src='https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js'></script>
+		<style type='text/css'>
+			video {
+				width: 100%;
+				height: 100%;
+			}
+		</style>
+	</head>
+	<body>
+		<video autoplay id='media'></video>
+		<script type='text/javascript'>
+			window.onload = function() {
+				// cast.receiver.logger.setLevelValue(cast.receiver.LoggerLevel.DEBUG);
+				window.mediaElement = document.getElementById('media');
+				window.mediaManager = new cast.receiver.MediaManager(window.mediaElement);
+				window.mediaManager.onLoad = function(event) {
+					if (event.data['media'] && event.data['media']['contentId']) {
+						var torrentId = event.data['media']['contentId'];
+						var client = new WebTorrent();
+						client.add(torrentId, function(torrent) {
+							var file = torrent.files[0];
+							file.renderTo('video');
+						});
+					}
+				}
+				window.castReceiverManager = cast.receiver.CastReceiverManager.getInstance();
+				window.castReceiverManager.start();
+			}
+		</script>
+	</body>
+</html>
